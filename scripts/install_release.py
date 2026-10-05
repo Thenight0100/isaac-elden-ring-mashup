@@ -12,7 +12,7 @@ ER_MONITOR_SRC = ROOT / "elden-ring" / "modengine2" / "er_bridge"
 LOG_DIR = Path.home() / "AppData" / "Local" / "IsaacERBridge"
 LOG_FILE = LOG_DIR / "isaac_er_bridge.log"
 STATE_FILE = LOG_DIR / "bridge_state.json"
-LAUNCH_FILE = ROOT / "launch.bat"
+RUNTIME_MANIFEST = LOG_DIR / "runtime_manifest.json"
 
 STEAM_COMMON_DIRS = [
     Path(r"C:\Program Files (x86)\Steam\steamapps\common"),
@@ -22,13 +22,6 @@ STEAM_COMMON_DIRS = [
     Path.home() / ".steam" / "steam" / "steamapps" / "common",
     Path.home() / ".local" / "share" / "Steam" / "steamapps" / "common",
 ]
-
-
-def find_first_dir(candidates):
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return None
 
 
 def find_game_dir(names):
@@ -43,38 +36,28 @@ def find_game_dir(names):
 
 
 def find_isaac_dir():
-    candidates = [
+    return find_game_dir([
         "The Binding of Isaac Repentance",
         "The Binding of Isaac: Repentance",
         "The Binding of Isaac Rebirth",
         "The Binding of Isaac: Rebirth",
         "The Binding of Isaac",
-    ]
-    return find_game_dir(candidates)
+    ])
 
 
 def find_elden_ring_dir():
-    candidates = [
+    return find_game_dir([
         "ELDEN RING",
         "Elden Ring",
         "eldenring",
-    ]
-    return find_game_dir(candidates)
+    ])
 
 
 def find_modengine2_dir():
-    candidates = [
+    return find_game_dir([
         "ModEngine2",
         "modengine2",
-    ]
-    for candidate in candidates:
-        for root in STEAM_COMMON_DIRS:
-            if not root.exists():
-                continue
-            path = root / candidate
-            if path.exists():
-                return path
-    return None
+    ])
 
 
 def install_mod_to_game(isaac_dir: Path):
@@ -97,7 +80,6 @@ def install_monitor_bundle():
         LOG_FILE.write_text("", encoding="utf-8")
     if not STATE_FILE.exists():
         STATE_FILE.write_text('{"seenEvents": []}\n', encoding="utf-8")
-
     return target
 
 
@@ -111,9 +93,8 @@ def write_runtime_manifest(isaac_dir: Path, er_dir: Path, modengine_dir: Path | 
         "stateFile": str(STATE_FILE),
         "version": "0.1",
     }
-    manifest_path = LOG_DIR / "runtime_manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    return manifest_path
+    RUNTIME_MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    return RUNTIME_MANIFEST
 
 
 def start_monitor():
@@ -121,6 +102,7 @@ def start_monitor():
     if not script.exists():
         raise FileNotFoundError(f"Monitor script not found: {script}")
 
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     if os.name == "nt":
         subprocess.Popen([sys.executable, str(script)], creationflags=subprocess.CREATE_NEW_CONSOLE)  # type: ignore[attr-defined]
     else:
@@ -146,10 +128,10 @@ def main():
     print("[install] Elden Ring install found at:", er_dir)
     print("[install] ModEngine2 install found at:", modengine_dir if modengine_dir else "not found")
     print("[install] Bridge log ready at:", LOG_FILE)
-    print("[install] Runtime manifest: ", LOG_DIR / "runtime_manifest.json")
+    print("[install] Runtime manifest:", RUNTIME_MANIFEST)
 
     start_monitor()
-    print("\n[install] Ready for launch. If Elden Ring uses ModEngine2 offline mode, launch it through ModEngine2 first.")
+    print("\n[install] Ready for launch. Launch Elden Ring through ModEngine2 offline mode, then launch Isaac with the companion mod enabled.")
 
 
 if __name__ == "__main__":
