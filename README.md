@@ -1,67 +1,62 @@
 # Isaac + Elden Ring Mashup v0.1
 
-A companion project pairing The Binding of Isaac: Repentance with Elden Ring through a local exchange bridge. This repository is the v0.1 design and scaffolding for a solo-companion loop where Isaac pickups and dungeon clears feed resources and rewards into Elden Ring, and major Elden Ring bosses trigger rewards back into Isaac.
+A local, offline companion loop connecting The Binding of Isaac: Repentance with Elden Ring through a shared log bridge and a lightweight ModEngine2 monitor.
 
-## Core loop
+## Core architecture
 
-- Isaac acts as the scavenger. Coins, bombs, and keys are recorded in the bridge log.
-- Resource conversion rules translate those items into Elden Ring resources such as runes, fire pots, and Stone Sword Keys/scrap.
-- Starting item pedestals and baseline buffs are synced from Isaac into Elden Ring.
-- Defeating major Elden Ring bosses triggers Isaac item rewards and chest/pedestal drops.
+- Isaac side: a Lua mod watches pickups, room clears, and dungeon events, then writes JSONL state deltas to a local bridge log.
+- ER side: a Python monitor reads that log, watches for conversion events, and applies the matching Elden Ring reward or resource injection rules.
+- Design sheet contracts: the conversion matrix and boss reward matrix remain the source of truth for cross-game actions.
 
-## Requirements
+## Current state
 
-- The Binding of Isaac: Repentance
-- The Binding of Isaac Lua mod support
-- Elden Ring
-- ModEngine2 for Elden Ring offline launch
-- Melty launcher or equivalent one-click desktop flow
-- Easy Anti-Cheat disabled for offline play
+This repo currently contains the v0.1 blueprint plus working starter code for:
 
-## Repo structure
+- a JSON resource conversion matrix
+- a JSON boss reward matrix
+- an Isaac Lua bridge mod scaffold
+- a ModEngine2-side Python monitor scaffold
+- a Melty launch recipe draft
+- a validation script to check the design sheet contracts
 
-- `design/resource-conversion.json` — conversion matrix
-- `design/boss-reward-matrix.json` — boss-to-reward mapping
-- `isaac/repentance/mods/isaac_er_bridge/` — Isaac mod scaffold and bridge log writer
-- `elden-ring/modengine2/er_bridge/` — ModEngine2-side monitor and item injection scaffold
-- `melty/launch_recipe.json` — one-click Melty launch recipe draft
-- `scripts/preflight.py` — design validation across conversion and boss sheets
+## Flow
 
-## Design files
+1. Isaac logs pickups such as coins, bombs, keys, and hearts.
+2. The bridge monitor converts those events into Elden Ring actions:
+   - coins -> runes
+   - bombs -> fire pots
+   - keys -> Stone Sword Keys or smithing scrap fallback
+   - hearts -> Crimson Tear or equivalent sustain resource
+3. Elden Ring boss victories trigger Isaac reward injections via the boss reward matrix.
+4. The process stays local and offline, with no manual file moving or port forwarding.
 
-The design sheets are intentionally versioned as JSON so they can be validated, diffed, and extended without breaking the bridge layer.
+## Quick start
 
-## Preflight workflow
-
-Run the validator before packaging:
+Validate the design sheets:
 
 ```bash
 python3 scripts/preflight.py
 ```
 
-The script verifies:
+Launch the ER side monitor:
 
-- all resource conversion sources are defined
-- no boss rewards are missing a target item ID
-- all matrix categories are cross-referenced consistently
-- config values remain aligned between Isaac and ER bridge files
+```bash
+python3 elden-ring/modengine2/er_bridge/bridge_monitor.py
+```
 
-## One-click Melty launch
+Then run Isaac with the companion mod loaded and keep the shared log path live.
 
-The launch recipe in `melty/launch_recipe.json` is designed to bring the full offline loop online in a clean sequence:
+## File map
 
-1. Launch Elden Ring via ModEngine2 in offline mode
-2. Start the ER bridge monitor
-3. Launch Isaac with the companion mod enabled
-4. Keep the exchange log active for pickup and room-cleared state deltas
+- `design/resource-conversion.json` — resource conversion matrix
+- `design/boss-reward-matrix.json` — boss reward mapping
+- `isaac/repentance/mods/isaac_er_bridge/main.lua` — Isaac bridge mod
+- `isaac/repentance/mods/isaac_er_bridge/metadata.json` — mod metadata
+- `elden-ring/modengine2/er_bridge/bridge_monitor.py` — ER-side monitor
+- `elden-ring/modengine2/er_bridge/config.json` — monitor config
+- `melty/launch_recipe.json` — one-click launch recipe draft
+- `scripts/preflight.py` — validation script
 
 ## Notes
 
-This repo represents the v0.1 blueprint. It is intentionally lightweight and modular so the bridge can be expanded once the first offline loop is working.
-
-## Next steps
-
-1. Wire the Lua mod into a real Isaac mod environment
-2. Test the log schema against the actual game events
-3. Add boss reward injection logic on the ER side
-4. Validate the full Melty flow in the clean offline launch profile
+This is intentionally a v0.1 implementation. The goal is a clean, testable loop that can be expanded after the first offline run proves the bridge contract end-to-end.

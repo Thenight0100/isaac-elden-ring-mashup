@@ -1,20 +1,28 @@
-# Elden Ring ModEngine2 Side
+# Elden Ring Bridge Monitor
 
-This folder contains the lightweight ER-side bridge runner intended to watch the Isaac exchange log and apply item injection or boss-reward plumbing in a clean offline ModEngine2 environment.
+This folder contains the ER-side state monitor. It polls the JSONL bridge log produced by the Isaac mod and translates Isaac events into Elden Ring-facing actions such as rune grants, fire pot drops, Stone Sword Key grants, and boss-triggered reward injection.
 
-## Files
+## Runtime behavior
 
-- `bridge_monitor.py` — Python process that polls the bridge log for Isaac state deltas.
-- `config.json` — runtime settings for monitor refresh intervals and reward policies.
+- Watches `isaac_er_bridge.log` for JSONL events.
+- Ignores duplicate events using a local `seen_events` state file.
+- Maps item types and room-clear signals into known conversion actions.
+- Keeps the loop idempotent so repeated reads do not re-trigger the same reward.
 
-## Planned ER-side behavior
+## Example event flow
 
-- Read pickup events from the Isaac bridge log
-- Map those events to Elden Ring conversion actions (`runes`, `fire pots`, `Stone Sword Keys`, `scrap`)
-- Watch for room-clear or boss-defeat markers
-- Inject the relevant Isaac rewards after a boss kill or major ER victory
-- Keep a local state file for idempotence and replay prevention
+```json
+{"ts":"2026-10-05T16:57:00Z","event":"pickup","payload":{"type":"coins","variant":5,"roomIndex":2}}
+{"ts":"2026-10-05T16:57:01Z","event":"room_clear","payload":{"roomIndex":2,"status":"clear"}}
+```
 
-## Offline ModEngine2 environment
+The runner can then trigger actions such as:
 
-This is designed to run under the ModEngine2 offline profile with Easy Anti-Cheat disabled, keeping the flow local and self-contained.
+- coins -> grant runes
+- bombs -> grant fire pots
+- keys -> grant Stone Sword Key or smithing scrap fallback
+- room clear -> optionally grant a small reward or update state
+
+## Notes
+
+This implementation is intentionally lightweight and offline-focused so it can be expanded once the final ModEngine2 installation path and boss injection APIs are finalized.
