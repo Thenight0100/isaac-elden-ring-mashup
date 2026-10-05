@@ -1,0 +1,70 @@
+{
+  "version": "0.1",
+  "title": "Boss Reward Matrix",
+  "description": "Maps major Elden Ring bosses to Isaac rewards and pedestal item drops.",
+  "bossRewards": [
+    {
+      "erBossId": "godrick",
+      "erBossName": "Godrick the Grafted",
+      "rewardType": "pedestal",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_heart_potion",
+      "isaacItemName": "Heart Potion",
+      "notes": "Baseline early-game reward to support the first boss-clear loop."
+    },
+    {
+      "erBossId": "rennala",
+      "erBossName": "Rennala, Queen of the Full Moon",
+      "rewardType": "chest",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_10_coins",
+      "isaacItemName": "10 Coins",
+      "notes": "Provides a small economy surge in Isaac after a major boss victory."
+    },
+    {
+      "erBossId": "radahn",
+      "erBossName": "Starscourge Radahn",
+      "rewardType": "pedestal",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_bomb_pack",
+      "isaacItemName": "Bomb Pack",
+      "notes": "A combat utility reward for the mid-game loop."
+    },
+    {
+      "erBossId": "morgott",
+      "erBossName": "Morgott, The Omen King",
+      "rewardType": "chest",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_key_bundle",
+      "isaacItemName": "Key Bundle",
+      "notes": "Carries over the dungeon-key rhythm into Isaac."
+    },
+    {
+      "erBossId": "radhanl",
+      "erBossName": "Rykard, Lord of Blasphemy",
+      "rewardType": "pedestal",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_gold_heart",
+      "isaacItemName": "Gold Heart",
+      "notes": "A rare reward intended for late-game boss-clear pacing."
+    },
+    {
+      "erBossId": "malenia",
+      "erBossName": "Malenia, Blade of Miquella",
+      "rewardType": "chest",
+      "rewardCount": 2,
+      "isaacItemId": "ITEM_isaac_rare_potion_pack",
+      "isaacItemName": "Rare Potion Pack",
+      "notes": "High-value late-game chest reward."
+    },
+    {
+      "erBossId": "gideon",
+      "erBossName": "Gideon Ofnir, the All-Knowing",
+      "rewardType": "pedestal",
+      "rewardCount": 1,
+      "isaacItemId": "ITEM_isaac_trinket_crate",
+      "isaacItemName": "Trinket Crate",
+      "notes": "Optional endgame slot reward for a final boss-cycle closure."
+    }
+  ]
+}

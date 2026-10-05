@@ -1,0 +1,42 @@
+{
+  "name": "Isaac + Elden Ring Mashup v0.1",
+  "version": "0.1",
+  "profile": "offline",
+  "launchSequence": [
+    {
+      "name": "Launch Elden Ring in offline ModEngine2 mode",
+      "command": "modengine2_launcher.exe",
+      "workingDirectory": "C:/Games/ModEngine2",
+      "args": [
+        "--game",
+        "eldenring",
+        "--offline",
+        "--disable-eac"
+      ],
+      "notes": "Run ModEngine2 with Easy Anti-Cheat disabled and the game set to offline mode."
+    },
+    {
+      "name": "Start the Elden Ring bridge monitor",
+      "command": "python",
+      "workingDirectory": "C:/Games/IsaacERBridge",
+      "args": [
+        "elden-ring/modengine2/er_bridge/bridge_monitor.py"
+      ],
+      "notes": "Maintains local watch over the Isaac bridge log while playing."
+    },
+    {
+      "name": "Launch Isaac with the companion mod",
+      "command": "isaac.exe",
+      "workingDirectory": "C:/Games/TheBindingOfIsaacRepentance",
+      "args": [
+        "--mod",
+        "repentance/mods/isaac_er_bridge"
+      ],
+      "notes": "Uses the local bridge mod to record pickups and room progress into the exchange log."
+    }
+  ],
+  "notes": [
+    "This is a v0.1 launch recipe draft intended for Melty automation or desktop launcher orchestration.",
+    "The exact executable names and directories should be trimmed to the actual install paths on the target machine."
+  ]
+}

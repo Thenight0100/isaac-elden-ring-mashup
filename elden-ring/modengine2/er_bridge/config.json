@@ -1,0 +1,14 @@
+{
+  "version": "0.1",
+  "title": "Elden Ring bridge monitor",
+  "description": "Background monitor that watches the Isaac bridge log and injects item rewards or tracks boss-defeat events.",
+  "logPath": "C:/Games/IsaacERBridge/isaac_er_bridge.log",
+  "statePath": "C:/Games/IsaacERBridge/elden_ring_bridge_state.json",
+  "refreshSeconds": 1,
+  "rewardPolicy": {
+    "coins": { "action": "grant_runes", "amount": 100 },
+    "bombs": { "action": "grant_fire_pot", "amount": 1 },
+    "keys": { "action": "grant_stone_sword_key", "amount": 1 },
+    "hearts": { "action": "grant_crimson_tear", "amount": 1 }
+  }
+}

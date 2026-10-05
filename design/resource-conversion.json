@@ -1,0 +1,91 @@
+{
+  "version": "0.1",
+  "title": "Resource Conversion Matrix",
+  "description": "Cross-game conversion sheet mapping Isaac pickups into Elden Ring resources and utility items.",
+  "resourceMatrix": [
+    {
+      "source": "coins",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_coin",
+      "isaacPickupName": "Coins",
+      "target": "runes",
+      "targetType": "elden_ring_resource",
+      "targetItemId": "rune_pouch",
+      "targetName": "Runes",
+      "ratio": 100,
+      "notes": "1 coin = 100 runes. Used as the baseline economy conversion for the first pass."
+    },
+    {
+      "source": "bombs",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_bomb",
+      "isaacPickupName": "Bombs",
+      "target": "fire_pots",
+      "targetType": "elden_ring_item",
+      "targetItemId": "fire_pot",
+      "targetName": "Fire Pots",
+      "ratio": 1,
+      "notes": "1 bomb converts to 1 fire pot. Good starter conversion for attack utility."
+    },
+    {
+      "source": "keys",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_key",
+      "isaacPickupName": "Keys",
+      "target": "stone_sword_keys",
+      "targetType": "elden_ring_item",
+      "targetItemId": "stone_sword_key",
+      "targetName": "Stone Sword Keys",
+      "ratio": 1,
+      "notes": "1 key converts into 1 Stone Sword Key or equivalent scrap bundle when inventory is full."
+    },
+    {
+      "source": "keys",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_key",
+      "isaacPickupName": "Keys",
+      "target": "scrap",
+      "targetType": "elden_ring_resource",
+      "targetItemId": "smithing_scrap",
+      "targetName": "Smithing Scrap",
+      "ratio": 3,
+      "notes": "Three keys can become a scrap bundle for crafting and upgrade loops."
+    },
+    {
+      "source": "bombs",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_bomb",
+      "isaacPickupName": "Bombs",
+      "target": "firebombs",
+      "targetType": "elden_ring_item",
+      "targetItemId": "fire_bomb",
+      "targetName": "Firebombs",
+      "ratio": 2,
+      "notes": "Bombs can seed a utility stack in Elden Ring if the fire-pot route is not desired."
+    },
+    {
+      "source": "hearts",
+      "sourceType": "isaac_pickup",
+      "sourceItemId": "pickup_heart",
+      "isaacPickupName": "Hearts",
+      "target": "crimson_tear_flask",
+      "targetType": "elden_ring_item",
+      "targetItemId": "crimson_tear",
+      "targetName": "Crimson Tear Flask",
+      "ratio": 1,
+      "notes": "A lightweight defensive conversion for a baseline sustain loop."
+    }
+  ],
+  "rules": {
+    "priority": [
+      "coins_to_runes",
+      "bombs_to_fire_pots",
+      "keys_to_stone_sword_keys",
+      "fallback_to_scrap_when_full"
+    ],
+    "fallbackPolicy": {
+      "ifInventoryIsFull": "Convert keys to smithing scrap instead of Stone Sword Key",
+      "ifRewardBlocked": "Fallback to a matching item bundle by category"
+    }
+  }
+}

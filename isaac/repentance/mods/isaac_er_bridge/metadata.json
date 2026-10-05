@@ -1,0 +1,14 @@
+{
+  "modName": "isaac_er_bridge",
+  "version": "0.1",
+  "description": "Lightweight Isaac bridge mod that records pickups and room-clear events for the Elden Ring cross-game bridge.",
+  "author": "Project team",
+  "logPath": "C:/Games/IsaacERBridge/isaac_er_bridge.log",
+  "enabled": true,
+  "eventTypes": [
+    "pickup",
+    "room_clear",
+    "boss_defeat",
+    "reward_injection"
+  ]
+}
