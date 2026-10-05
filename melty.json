@@ -1,0 +1,15 @@
+{
+  "$schema": "https://melty.gg/schema/v1/recipe.json",
+  "name": "Isaac x Elden Ring Companion",
+  "version": "0.1.0",
+  "games": [
+    "elden-ring"
+  ],
+  "components": [
+    {
+      "name": "main",
+      "fileName": "isaac-elden-ring-mashup-main.zip",
+      "destination": "{managed}/modengine2/mod"
+    }
+  ]
+}
