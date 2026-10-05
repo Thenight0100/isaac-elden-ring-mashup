@@ -1,15 +1,57 @@
-{
-  "$schema": "https://melty.gg/schema/v1/recipe.json",
-  "name": "Isaac x Elden Ring Companion",
-  "version": "0.1.0",
-  "games": [
-    "elden-ring"
-  ],
+#!/usr/bin/env python3
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+MELTY_JSON = ROOT / "melty.json"
+
+recipe = {
+  "project": "isaac-elden-ring-mashup",
+  "version": "0.1",
+  "platform": "windows",
+  "oneClick": {
+    "requiredGames": [
+      "The Binding of Isaac: Repentance",
+      "Elden Ring"
+    ],
+    "singlePlayerOnly": True,
+    "notes": "This is a local offline companion loop. Players must own the required Steam versions of both games."
+  },
   "components": [
     {
-      "name": "main",
-      "fileName": "isaac-elden-ring-mashup-main.zip",
-      "destination": "{managed}/modengine2/mod"
+      "name": "isaac_bridge_mod",
+      "source": "isaac/repentance/mods/isaac_er_bridge/**",
+      "destination": "{steam}/The Binding of Isaac Repentance/repentance/mods/isaac_er_bridge",
+      "mode": "installed",
+      "description": "Isaac Lua mod that logs pickups and room-clear events to a JSONL bridge file."
+    },
+    {
+      "name": "bridge_monitor",
+      "source": "elden-ring/modengine2/er_bridge/**",
+      "destination": "{localappdata}/IsaacERBridge/er_bridge",
+      "mode": "installed",
+      "description": "Python bridge monitor that watches the Isaac log and tracks events."
+    },
+    {
+      "name": "launch_script",
+      "source": "launch.bat",
+      "destination": "{game}/launch.bat",
+      "mode": "installed",
+      "description": "Windows launcher that prepares the mod install and starts the bridge monitor."
     }
+  ],
+  "launch": {
+    "type": "cmd",
+    "command": "launch.bat",
+    "notes": "Run from the installed package root. The launcher prepares the local bridge files and starts the ER monitor."
+  },
+  "requirements": [
+    "Python 3 installed and on PATH",
+    "The Binding of Isaac: Repentance on Steam",
+    "Elden Ring on Steam",
+    "ModEngine2 for Elden Ring offline mode with EAC disabled"
   ]
 }
+
+MELTY_JSON.write_text(json.dumps(recipe, indent=2) + "\n", encoding="utf-8")
+print(f"Wrote {MELTY_JSON}")

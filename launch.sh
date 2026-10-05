@@ -1,42 +1,66 @@
 #!/bin/bash
-# Isaac + Elden Ring Mashup v0.1 Launcher
-# One-click launch for the offline companion loop.
+# Isaac + Elden Ring Mashup v0.1 launch script
+# This is the one-click project-side launcher for the local companion loop.
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="$HOME/.IsaacERBridge"
-ISAAC_LOG="$LOG_DIR/isaac_er_bridge.log"
-ER_MONITOR_PY="$SCRIPT_DIR/elden-ring/modengine2/er_bridge/bridge_monitor.py"
+PYTHON_BIN="${PYTHON:-$(command -v python3 || command -v python || true)}"
 
-echo ""
-echo "[Mashup] Preparing offline companion loop..."
-echo ""
-
-# Create bridge log directory if missing
-if [ ! -d "$LOG_DIR" ]; then
-    mkdir -p "$LOG_DIR"
-    echo "[Mashup] Created bridge log directory: $LOG_DIR"
+if [ -z "$PYTHON_BIN" ]; then
+    echo "[launcher] Python 3 is required and was not found on PATH."
+    echo "[launcher] Install Python 3 and rerun this script."
+    exit 1
 fi
 
-# Clear old log if requested
-if [ "$1" = "--fresh" ]; then
-    rm -f "$ISAAC_LOG"
-    echo "[Mashup] Cleared old bridge log"
+python3 "$SCRIPT_DIR/scripts/install_release.py"
+
+echo "[launcher] Starting Elden Ring bridge monitor..."
+python3 "$SCRIPT_DIR/elden-ring/modengine2/er_bridge/bridge_monitor.py" &
+
+# Try common Steam install locations
+ISAAC_DIR=""
+ER_DIR=""
+
+for dir in \
+  "$HOME/.steam/steam/steamapps/common/The Binding of Isaac Repentance" \
+  "$HOME/.steam/steam/steamapps/common/The Binding of Isaac Rebirth" \
+  "$HOME/.local/share/Steam/steamapps/common/The Binding of Isaac Repentance" \
+  "$HOME/.local/share/Steam/steamapps/common/The Binding of Isaac Rebirth" ; do
+  if [ -f "$dir/isaac" ] || [ -f "$dir/isaac.exe" ]; then
+    ISAAC_DIR="$dir"
+  fi
+done
+
+for dir in \
+  "$HOME/.steam/steam/steamapps/common/ELDEN RING" \
+  "$HOME/.local/share/Steam/steamapps/common/ELDEN RING" ; do
+  if [ -f "$dir/eldenring.exe" ] || [ -f "$dir/eldenring" ]; then
+    ER_DIR="$dir"
+  fi
+done
+
+if [ -n "$ISAAC_DIR" ]; then
+  echo "[launcher] Launching Isaac: $ISAAC_DIR"
+  if [ -f "$ISAAC_DIR/isaac" ]; then
+    "$ISAAC_DIR/isaac" &
+  elif [ -f "$ISAAC_DIR/isaac.exe" ]; then
+    cmd.exe /c start "" "$ISAAC_DIR/isaac.exe" >/dev/null 2>&1 || "${ISAAC_DIR}/isaac.exe" &
+  fi
 fi
 
-# Start ER bridge monitor in background
-echo "[Mashup] Starting Elden Ring bridge monitor..."
-python3 "$ER_MONITOR_PY" &
-MONITOR_PID=$!
-echo "[Mashup] Monitor started (PID: $MONITOR_PID)"
-echo ""
+if [ -n "$ER_DIR" ]; then
+  echo "[launcher] Launching Elden Ring: $ER_DIR"
+  if [ -f "$ER_DIR/eldenring" ]; then
+    "$ER_DIR/eldenring" &
+  elif [ -f "$ER_DIR/eldenring.exe" ]; then
+    cmd.exe /c start "" "$ER_DIR/eldenring.exe" >/dev/null 2>&1 || "${ER_DIR}/eldenring.exe" &
+  fi
+fi
 
-echo "[Mashup] Ready to launch games:"
-echo "  1. Launch Elden Ring via ModEngine2 (offline, EAC disabled)"
-echo "  2. Launch Isaac with isaac_er_bridge mod enabled"
-echo ""
-echo "[Mashup] The bridge log will sync pickups and room clears in real-time."
-echo ""
-echo "Press Enter to continue..."
-read
+if [ -z "$ISAAC_DIR" ] && [ -z "$ER_DIR" ]; then
+  echo "[launcher] Could not auto-detect Steam installs for Isaac or Elden Ring."
+  echo "[launcher] Install both Steam games, then run this script again."
+fi
+
+read -p "Press Enter to exit the launcher..."

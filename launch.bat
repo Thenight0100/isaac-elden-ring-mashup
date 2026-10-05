@@ -1,40 +1,67 @@
 @echo off
-REM Isaac + Elden Ring Mashup v0.1 Launcher
-REM One-click launch for the offline companion loop.
+REM Isaac + Elden Ring Mashup v0.1 launch script
+REM This is the one-click project-side launcher for the local companion loop.
 
 setlocal enabledelayedexpansion
-
 set SCRIPT_DIR=%~dp0
-set LOG_DIR=C:\Games\IsaacERBridge
-set ISAAC_LOG=%LOG_DIR%\isaac_er_bridge.log
-set ER_MONITOR_PY=%SCRIPT_DIR%elden-ring\modengine2\er_bridge\bridge_monitor.py
+set PYTHON=%PYTHON%
 
-echo.
-echo [Mashup] Preparing offline companion loop...
-echo.
-
-REM Create bridge log directory if missing
-if not exist "%LOG_DIR%" (
-    mkdir "%LOG_DIR%"
-    echo [Mashup] Created bridge log directory: %LOG_DIR%
+if "%PYTHON%"=="" (
+  where py >nul 2>nul
+  if not errorlevel 1 (
+    set PYTHON=py
+  ) else (
+    where python >nul 2>nul
+    if not errorlevel 1 (
+      set PYTHON=python
+    ) else (
+      echo [launcher] Python 3 is required and was not found on PATH.
+      echo [launcher] Install Python 3 and rerun this script.
+      pause
+      exit /b 1
+    )
+  )
 )
 
-REM Clear old log if requested
-if "%1"=="--fresh" (
-    del "%ISAAC_LOG%" /f /q 2>nul
-    echo [Mashup] Cleared old bridge log
+REM Make sure the bridge and mod directory are initialized in standard install locations
+call "%PYTHON%" "%SCRIPT_DIR%scripts\install_release.py"
+if errorlevel 1 (
+  echo [launcher] Release setup failed.
+  pause
+  exit /b 1
 )
 
-REM Start ER bridge monitor in background
-echo [Mashup] Starting Elden Ring bridge monitor...
-start "ER Bridge Monitor" python "%ER_MONITOR_PY%"
-echo [Mashup] Monitor started
-echo.
+echo [launcher] Starting Elden Ring bridge monitor...
+start "ER Bridge Monitor" "%PYTHON%" "%SCRIPT_DIR%elden-ring\modengine2\er_bridge\bridge_monitor.py"
 
-echo [Mashup] Ready to launch games:
-echo   1. Launch Elden Ring via ModEngine2 (offline, EAC disabled)
-echo   2. Launch Isaac with isaac_er_bridge mod enabled
-echo.
-echo [Mashup] The bridge log will sync pickups and room clears in real-time.
-echo.
+REM If the game directories are present, start the games next.
+set ISAAC_DIR=
+set ER_DIR=
+
+for %%D in ("C:\Program Files (x86)\Steam\steamapps\common\The Binding of Isaac Repentance" "C:\Program Files\Steam\steamapps\common\The Binding of Isaac Repentance" "C:\Program Files (x86)\Steam\steamapps\common\The Binding of Isaac Rebirth" "C:\Program Files\Steam\steamapps\common\The Binding of Isaac Rebirth") do (
+  if exist %%~D\isaac.exe (
+    set "ISAAC_DIR=%%~D"
+  )
+)
+for %%D in ("C:\Program Files (x86)\Steam\steamapps\common\ELDEN RING" "C:\Program Files\Steam\steamapps\common\ELDEN RING") do (
+  if exist %%~D\eldenring.exe (
+    set "ER_DIR=%%~D"
+  )
+)
+
+if not "%ISAAC_DIR%"=="" (
+  echo [launcher] Launching Isaac: %ISAAC_DIR%\isaac.exe
+  start "Isaac" "%ISAAC_DIR%\isaac.exe"
+)
+
+if not "%ER_DIR%"=="" (
+  echo [launcher] Launching Elden Ring: %ER_DIR%\eldenring.exe
+  start "Elden Ring" "%ER_DIR%\eldenring.exe"
+)
+
+if "%ISAAC_DIR%"=="" if "%ER_DIR%"=="" (
+  echo [launcher] Could not auto-detect Steam installs for Isaac or Elden Ring.
+  echo [launcher] Install both Steam games, then run this script again.
+)
+
 pause
